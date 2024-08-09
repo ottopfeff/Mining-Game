@@ -2,7 +2,9 @@
 #define PLAYER_H
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "World.h"
+#include "./src/include/SDL2/SDL.h"
 
 typedef enum direction_t
 {
@@ -10,6 +12,10 @@ typedef enum direction_t
     RIGHT,
     UP,
     DOWN,
+    UPLEFT,
+    UPRIGHT,
+    DOWNLEFT,
+    DOWNRIGHT,
     NONE
 } direction;
 
@@ -18,12 +24,12 @@ class Player
 private:
     World* _World;
 public:
-    int x, y;
+    float x, y;
     direction dir;
     int score;
     Player(World* World);
     ~Player();
-    void TryMove(direction direction);
+    void TryMove(direction dir);
 };
 
 #endif

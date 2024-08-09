@@ -1,6 +1,7 @@
+#define SDL_MAIN_HANDLED
+
 #include "World.h"
 #include "Player.h"
-#include "ConsoleRenderer.h"
 #include "WindowRenderer.h"
 #include "InputManager.h"
 #include <iostream>
@@ -18,13 +19,16 @@ int64_t now()
 
 int main(int argc, char *argv[])
 {
-    SDL_Init(SDL_INIT_EVERYTHING);
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    {
+        fprintf(stderr, "Could not initialise SDL: %s\n", SDL_GetError());
+        exit(-1);
+    }
     srand(time(0));
-    World world(40, 40, 30, 15, 100);
+    World world(20, 20, 10, 15, 20);
     Player player(&world);
 
     WindowRenderer renderer(&world, &player, 800, 600);
-    // ConsoleRenderer renderer(&world, &player, 800, 600);
     InputManager inputManager(&world, &player, &renderer);
 
     // renderer.Discover(player.x + (player.y * world.Width));
@@ -35,25 +39,21 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        if (now() - time >= 50)
+        if (SDL_PollEvent(&window_event))
+        {
+            if (window_event.type == SDL_QUIT)
+            {
+                break;
+            }
+        }
+        if (now() - time >= 20)
         {
 
             time = now();
-                if (SDL_PollEvent(&window_event))
-                {
-                    if (window_event.type == SDL_QUIT)
-                    {
-                        break;
-                    }
-                }
             renderer.ClearFrame();
             renderer.RenderFrame();
             inputManager.ManageInput();
         }
     }
-    // SDL_Event window_event;
-    // while (1)
-    // {
-
-    // }
+    SDL_Quit();
 }

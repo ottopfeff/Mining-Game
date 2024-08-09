@@ -1,34 +1,35 @@
 #ifndef WINDOWRENDERER_H
 #define WINDOWRENDERER_H
 
-#define SDL_MAIN_HANDLED
 
-#include "Renderer.h"
+
 #include "World.h"
 #include "Player.h"
 #include "./src/include/SDL2/SDL.h"
 
-class WindowRenderer : public Renderer
+class WindowRenderer
 {
 private:
     bool *Discovered, debug;
     int Width, Height;
     World *_World;
     Player *_Player;
-    
 
 public:
-    SDL_Window* Window;
-    SDL_Renderer* Renderer;
+    SDL_Window *Window;
+    SDL_Renderer *Renderer;
+    int MouseX, MouseY;
     WindowRenderer();
     WindowRenderer(World *world, Player *player, int width, int height);
     ~WindowRenderer();
-    void Reveal() override;
-    void Discover(int index) override;
-    void RenderFrame() override;
-    void ClearFrame() override;
-    void ToggleDebug() override;
-    void Init_Window(const char* title);
+    void Reveal();
+    void Discover(int index); 
+    void RenderFrame(); 
+    void ClearFrame(); 
+    void ToggleDebug(); 
+    void Init_Window(const char *title);
     void Init_Renderer();
+    void DrawPlayer(int tileLength, int xRem);
+    void DrawSelectedTile(int tileLength, int xRem);
 };
 #endif
