@@ -39,10 +39,11 @@ private:
 public:
     float size;
     float x, y;
+    float speed;
     direction dir;
-    Vec2 velocity;
     int score;
-    BoundingBox BoundingBox;
+    bool canMine;
+    float reach;
 
     Player(World *World);
     ~Player();

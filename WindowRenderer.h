@@ -17,7 +17,7 @@ private:
     void Init_Window(const char *title);
     void Init_Renderer();
     void DrawPlayer();
-    void DrawSelectedTile(int tileLength, int xRem);
+    void DrawAndStoreSelectedTile(int minX, int minY);
     void DrawPlayerBoundingBox(int tileLength, int xRem);
     void DrawPlayerCollisionBox(int tileLength, int xRem);
     void DrawPlayerVector(int tileLength, int xRem);
@@ -26,6 +26,7 @@ public:
     SDL_Window *Window;
     SDL_Renderer *Renderer;
     int MouseX, MouseY;
+    int MouseWorldX, MouseWorldY;
     WindowRenderer();
     WindowRenderer(World *world, Player *player, int width, int height);
     ~WindowRenderer();
@@ -34,5 +35,6 @@ public:
     void RenderFrame();
     void ClearFrame();
     void ToggleDebug();
+    std::tuple<int, int> GetMouseWorldCoordinates();
 };
 #endif

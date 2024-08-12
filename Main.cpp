@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     srand(time(0));
-    World world(200, 200, 10, 15, 20);
+    World world(200, 200, 200, 15, 0);
     Player player(&world);
 
     WindowRenderer renderer(&world, &player, 800, 600);
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-        if (now() - time >= 20)
+        if (now() - time >= 13)
         {
 
             time = now();

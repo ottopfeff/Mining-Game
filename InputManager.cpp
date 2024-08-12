@@ -1,4 +1,11 @@
-#include "InputManager.h"
+#include "InputManager.h"\
+
+float Distance(int x0, int y0, int x1, int y1)
+{
+    float distance = SDL_sqrtf(((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0)));
+    printf("DISTANCE: %f\n", distance);
+    return distance;
+}
 
 InputManager::InputManager(World *world, Player *player, WindowRenderer *renderer)
 {
@@ -18,7 +25,11 @@ InputManager::~InputManager()
 void InputManager::ManageInput()
 {
     SDL_PumpEvents();
-    SDL_GetMouseState(&(_Renderer->MouseX), &(_Renderer->MouseY));
+    int mouseState = SDL_GetMouseState(&(_Renderer->MouseX), &(_Renderer->MouseY));
+    if (SDL_BUTTON(mouseState) == 1 && _Player->canMine)
+    {
+        _Player->score += _World->DestroyTile(_Renderer->MouseWorldX, _Renderer->MouseWorldY);
+    }
     direction move_dir = NONE;
     if (keys[SDL_SCANCODE_W] && !(keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_D]))
         move_dir = UP;
@@ -41,30 +52,11 @@ void InputManager::ManageInput()
         _Renderer->Reveal();
     if (keys[SDL_SCANCODE_F1])
         _Renderer->ToggleDebug();
-
-    if (keys[SDL_SCANCODE_SPACE])
-    {
-        // int x = _Player->x;
-        // int y = _Player->y;
-        // switch (_Player->dir)
-        // {
-        // case LEFT:
-        //     x--;
-        //     break;
-        // case RIGHT:
-        //     x++;
-        //     break;
-        // case UP:
-        //     y--;
-        //     break;
-        // case DOWN:
-        //     y++;
-        //     break;
-        // }
-        // _Player->score += _World->DestroyTile(x, y);
-        // //_Renderer->Discover(x + (y * _World->Width));
-    }
-
     if (keys[SDL_SCANCODE_ESCAPE])
         exit(0);
+
+    if (Distance(_Player->x, _Player->y, _Renderer->MouseWorldX, _Renderer->MouseWorldY) <= _Player->reach)
+        _Player->canMine = true;
+    else
+        _Player->canMine = false;
 }

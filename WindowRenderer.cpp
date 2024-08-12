@@ -10,6 +10,8 @@ WindowRenderer::WindowRenderer(World *world, Player *player, int width, int heig
     Height = height;
     MouseX = 0;
     MouseY = 0;
+    MouseWorldX = -1;
+    MouseWorldY = -1;
     TileLength = 30;
     int horizontalTileCount = Width / TileLength;
     int verticalTileCount = Height / TileLength;
@@ -41,7 +43,7 @@ void WindowRenderer::RenderFrame()
 {
     int horizontalTileCount = Width / TileLength;
     int verticalTileCount = Height / TileLength;
-    
+
     xOffset = (_Player->x - (int)_Player->x) * TileLength;
     yOffset = (_Player->y - (int)_Player->y) * TileLength;
 
@@ -97,12 +99,13 @@ void WindowRenderer::RenderFrame()
 
     SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
     SDL_RenderFillRectF(Renderer, &rect);
+    DrawAndStoreSelectedTile(xMin, yMin);
 
     if (debug)
     {
 
         printf("(%f,%f) GAME\n", this->_Player->x, this->_Player->y);
-        printf("(%d,%d) MOUSE\n", MouseX, MouseY);
+        printf("(%d,%d) (%d,%d) MOUSE\n", MouseX, MouseY, MouseWorldX + xMin, MouseWorldY + yMin);
         printf("SCORE: %d\n", this->_Player->score);
         printf("\n");
         printf("TILELENGTH = %d\n", TileLength);
@@ -119,6 +122,7 @@ void WindowRenderer::ClearFrame()
     SDL_RenderClear(Renderer);
     system("cls");
 }
+
 void WindowRenderer::ToggleDebug() { debug = !debug; }
 void WindowRenderer::Init_Window(const char *title)
 {
@@ -144,34 +148,28 @@ void WindowRenderer::DrawPlayer()
 {
 }
 
-void WindowRenderer::DrawSelectedTile(int tileLength, int xRem)
+void WindowRenderer::DrawAndStoreSelectedTile(int minX, int minY)
 {
-    if (MouseX < xRem || MouseX > MouseX + _World->Width)
-        return;
 
-    int x = (MouseX - xRem) / tileLength, y = MouseY / tileLength;
-    int rendX = x * tileLength + xRem, rendY = y * tileLength;
+    int x = (MouseX + xOffset) / TileLength, y = (MouseY + yOffset) / TileLength;
+    int rendX = x * TileLength - xOffset, rendY = y * TileLength - yOffset;
 
-    SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
-    SDL_RenderDrawLine(Renderer, rendX, rendY, rendX + tileLength, rendY);
-    SDL_RenderDrawLine(Renderer, rendX, rendY, rendX, rendY + tileLength);
-    SDL_RenderDrawLine(Renderer, rendX + tileLength, rendY, rendX + tileLength, rendY + tileLength);
-    SDL_RenderDrawLine(Renderer, rendX, rendY + tileLength, rendX + tileLength, rendY + tileLength);
+    if (_Player->canMine)
+        SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+    else
+        SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
+
+    SDL_RenderDrawLine(Renderer, rendX, rendY, rendX + TileLength, rendY);
+    SDL_RenderDrawLine(Renderer, rendX, rendY, rendX, rendY + TileLength);
+    SDL_RenderDrawLine(Renderer, rendX + TileLength, rendY, rendX + TileLength, rendY + TileLength);
+    SDL_RenderDrawLine(Renderer, rendX, rendY + TileLength, rendX + TileLength, rendY + TileLength);
+
+    MouseWorldX = x + minX;
+    MouseWorldY = y + minY;
 }
 
 void WindowRenderer::DrawPlayerBoundingBox(int TileLength, int xRem)
 {
-    BoundingBox box = _Player->BoundingBox;
-    float rendX0 = box.x * TileLength + xRem;
-    float rendX1 = (box.x + box.width) * TileLength + xRem;
-    float rendY0 = box.y * TileLength;
-    float rendY1 = (box.y + box.height) * TileLength;
-
-    SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
-    SDL_RenderDrawLineF(Renderer, rendX0, rendY0, rendX1, rendY0);
-    SDL_RenderDrawLineF(Renderer, rendX0, rendY0, rendX0, rendY1);
-    SDL_RenderDrawLineF(Renderer, rendX1, rendY0, rendX1, rendY1);
-    SDL_RenderDrawLineF(Renderer, rendX0, rendY1, rendX1, rendY1);
 }
 
 void WindowRenderer::DrawPlayerCollisionBox(int tileLength, int xRem)
@@ -195,13 +193,4 @@ void WindowRenderer::DrawPlayerCollisionBox(int tileLength, int xRem)
 
 void WindowRenderer::DrawPlayerVector(int tileLength, int xRem)
 {
-    float x0 = _Player->x, y0 = _Player->y;
-    float x1 = x0 + _Player->velocity.x * 3, y1 = y0 + _Player->velocity.y * 3;
-    float rendX0 = x0 * tileLength + xRem;
-    float rendY0 = y0 * tileLength;
-    float rendX1 = x1 * tileLength + xRem;
-    float rendY1 = y1 * tileLength;
-
-    SDL_SetRenderDrawColor(Renderer, 255, 0, 255, 255);
-    SDL_RenderDrawLineF(Renderer, rendX0, rendY0, rendX1, rendY1);
 }
