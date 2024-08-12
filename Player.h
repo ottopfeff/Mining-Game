@@ -19,18 +19,34 @@ typedef enum direction_t
     NONE
 } direction;
 
+typedef struct BoundingBox_t
+{
+    float x;
+    float y;
+    float width;
+    float height;
+} BoundingBox;
+
+typedef struct Vector2_t {
+    float x;
+    float y;
+} Vec2;
+
 class Player
 {
 private:
-    World* _World;
+    World *_World;
 public:
+    float size;
     float x, y;
     direction dir;
+    Vec2 velocity;
     int score;
-    Player(World* World);
+    BoundingBox BoundingBox;
+
+    Player(World *World);
     ~Player();
     void TryMove(direction dir);
 };
 
 #endif
-

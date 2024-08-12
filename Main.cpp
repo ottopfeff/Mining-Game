@@ -25,13 +25,14 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     srand(time(0));
-    World world(20, 20, 10, 15, 20);
+    World world(200, 200, 10, 15, 20);
     Player player(&world);
 
     WindowRenderer renderer(&world, &player, 800, 600);
     InputManager inputManager(&world, &player, &renderer);
 
     // renderer.Discover(player.x + (player.y * world.Width));
+    world.tiles[(int)player.x][(int)player.y] = AIR;
 
     int64_t time = now();
 
