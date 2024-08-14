@@ -34,5 +34,7 @@ public:
     void ChangeTile(int x, int y, tile tile);
 
     int DestroyTile(int x, int y);
+
+    bool IsInBounds(int x, int y);
 };
 #endif

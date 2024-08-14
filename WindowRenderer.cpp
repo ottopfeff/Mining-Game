@@ -15,6 +15,13 @@ WindowRenderer::WindowRenderer(World *world, Player *player, int width, int heig
     TileLength = 30;
     int horizontalTileCount = Width / TileLength;
     int verticalTileCount = Height / TileLength;
+    Discovered = new bool *[_World->Width];
+    for (int i = 0; i < _World->Width; i++)
+    {
+        Discovered[i] = new bool[Height];
+        for (int j = 0; j < Height; j++)
+            Discovered[i][j] = false;
+    }
 
     while (horizontalTileCount % 2 == 0 && verticalTileCount % 2 == 0)
     {
@@ -22,9 +29,6 @@ WindowRenderer::WindowRenderer(World *world, Player *player, int width, int heig
         horizontalTileCount = Width % TileLength;
         verticalTileCount = Height % TileLength;
     }
-    int size = _World->Width * _World->Height;
-    Discovered = new bool[size];
-    memset(Discovered, false, size);
     debug = true;
     Init_Window("Mining Game");
     Init_Renderer();
@@ -38,7 +42,26 @@ WindowRenderer::~WindowRenderer()
     delete[] Discovered;
 }
 void WindowRenderer::Reveal() { memset(Discovered, true, _World->Width * _World->Height); }
-void WindowRenderer::Discover(int index) {}
+void WindowRenderer::Discover()
+{
+    int x = _Player->x, y = _Player->y;
+    int xStart = x - 5, yStart = y - 5;
+    int xEnd = x + 5, yEnd = y + 5;
+    for (int i = xStart; i < xEnd; i++)
+    {
+        for (int j = yStart; j < yEnd; j++)
+        {
+            if (_World->IsInBounds(i, j) &&
+                ((_World->IsInBounds(i - 1, j) && _World->tiles[i - 1][j] == AIR) ||
+                 (_World->IsInBounds(i + 1, j) && _World->tiles[i + 1][j] == AIR) ||
+                 (_World->IsInBounds(i, j - 1) && _World->tiles[i][j - 1] == AIR) ||
+                 (_World->IsInBounds(i, j + 1) && _World->tiles[i][j + 1] == AIR)))
+            {
+                Discovered[i][j] = true;
+            }
+        }
+    }
+}
 void WindowRenderer::RenderFrame()
 {
     int horizontalTileCount = Width / TileLength;
@@ -56,11 +79,13 @@ void WindowRenderer::RenderFrame()
     rect.w = (float)TileLength;
     rect.h = (float)TileLength;
 
+    Discover();
+
     for (int i = xMin; i < xMin + horizontalTileCount + 2; i++)
     {
         for (int j = yMin; j < yMin + verticalTileCount + 2; j++)
         {
-            if (i < 0 || j < 0 || i > _World->Width - 1 || j > _World->Height - 1)
+            if (i < 0 || j < 0 || i > _World->Width - 1 || j > _World->Height - 1 || !Discovered[i][j])
             {
                 SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
             }
@@ -159,13 +184,16 @@ void WindowRenderer::DrawAndStoreSelectedTile(int minX, int minY)
     else
         SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
 
-    SDL_RenderDrawLine(Renderer, rendX, rendY, rendX + TileLength, rendY);
-    SDL_RenderDrawLine(Renderer, rendX, rendY, rendX, rendY + TileLength);
-    SDL_RenderDrawLine(Renderer, rendX + TileLength, rendY, rendX + TileLength, rendY + TileLength);
-    SDL_RenderDrawLine(Renderer, rendX, rendY + TileLength, rendX + TileLength, rendY + TileLength);
-
     MouseWorldX = x + minX;
     MouseWorldY = y + minY;
+
+    if (Discovered[MouseWorldX][MouseWorldY])
+    {
+        SDL_RenderDrawLine(Renderer, rendX, rendY, rendX + TileLength, rendY);
+        SDL_RenderDrawLine(Renderer, rendX, rendY, rendX, rendY + TileLength);
+        SDL_RenderDrawLine(Renderer, rendX + TileLength, rendY, rendX + TileLength, rendY + TileLength);
+        SDL_RenderDrawLine(Renderer, rendX, rendY + TileLength, rendX + TileLength, rendY + TileLength);
+    }
 }
 
 void WindowRenderer::DrawPlayerBoundingBox(int TileLength, int xRem)

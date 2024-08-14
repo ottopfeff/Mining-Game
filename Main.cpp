@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-        if (now() - time >= 13)
+        if (now() - time >= 20)
         {
 
             time = now();

@@ -8,7 +8,7 @@
 class WindowRenderer
 {
 private:
-    bool *Discovered, debug;
+    bool **Discovered, debug;
     int Width, Height;
     int TileLength;
     float xOffset, yOffset;
@@ -31,7 +31,7 @@ public:
     WindowRenderer(World *world, Player *player, int width, int height);
     ~WindowRenderer();
     void Reveal();
-    void Discover(int index);
+    void Discover();
     void RenderFrame();
     void ClearFrame();
     void ToggleDebug();
